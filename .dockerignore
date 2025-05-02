@@ -1,0 +1,54 @@
+# Git
+.git
+.gitignore
+
+# Build
+/bin
+/dist
+
+# Docker
+.docker
+docker-compose.yml
+docker-compose.*.yml
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Dependency directories
+vendor/
+
+# Environment variables
+.env
+.env.local
+*.env
+
+# Logs
+*.log
+
+# OS specific files
+.DS_Store
+.DS_Store?
+**.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Go specific
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# Documentation
+README.md
+CHANGELOG.md
+docs/
