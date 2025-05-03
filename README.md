@@ -2,6 +2,10 @@
 
 A simple HTTP service that generates electronic signature label images on demand. This service creates professional-looking signatures with rounded borders that can be used in electronic documents.
 
+**Demo/Preview:**
+
+<img src="https://github.com/user-attachments/assets/9fad424d-4bc9-47d5-95d6-291eaafef6b4" height="110">
+
 ## Features
 
 - Dynamically generates signature images with professional appearance.
