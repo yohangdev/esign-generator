@@ -174,9 +174,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	// Check for empty parameters
 	missingParams := make([]string, 0)
-	if jabatan == "" {
-		missingParams = append(missingParams, "jabatan")
-	}
+
 	if nama == "" {
 		missingParams = append(missingParams, "nama")
 	}
@@ -213,8 +211,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jabatan = strings.ToUpper(jabatan)
-	nama = strings.ToUpper(nama)
+	if jabatan != "" {
+		jabatan = strings.ToUpper(jabatan)
+	}
 
 	statusCode := http.StatusOK // 200
 
@@ -255,7 +254,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	// Draw jabatan with wrapping from top
 	y = 125
-	y += drawWrappedText(rgba, 400, y, maxWidth, jabatan+",")
+	if jabatan != "" {
+		y += drawWrappedText(rgba, 400, y, maxWidth, jabatan+",")
+	}
 
 	// Draw footer text from bottom
 	drawText(rgba, 400, bottomMargin, "Penyedia")
