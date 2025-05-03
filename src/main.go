@@ -267,7 +267,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	drawWrappedTextFromBottom(rgba, 400, namaBottomY, maxWidth, nama)
 
 	w.Header().Set("Content-Type", "image/jpeg")
-	jpeg.Encode(w, rgba, nil)
+	jpeg.Encode(w, rgba, &jpeg.Options{Quality: 100})
 }
 
 func main() {
