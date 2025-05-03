@@ -4,16 +4,16 @@ A simple HTTP service that generates electronic signature label images on demand
 
 ## Features
 
-- Dynamically generates signature images with professional appearance
-- Customizable name and job title parameters
-- Rounded border design with consistent formatting
-- Returns JPEG or PNG images ready for embedding in documents
-- Detailed logging for all requests
+- Dynamically generates signature images with professional appearance.
+- Customizable name and job title parameters.
+- Rounded border design with consistent formatting.
+- Returns JPEG or PNG images ready for embedding in documents.
+- Detailed logging for all requests.
 
 ## Requirements
 
-- Go 1.24 or higher
-- Port 8080 available for the HTTP server
+- Go 1.24 or higher.
+- Port 8080 available for the HTTP server.
 
 ## Installation
 
@@ -39,19 +39,20 @@ Generates a signature image with the specified parameters.
 
 **Parameters:**
 
-| Parameter | Type   | Required | Description                                      |
-|-----------|--------|----------|--------------------------------------------------|
-| nama      | string | Yes      | The name to be displayed in the signature        |
-| jabatan   | string | No       | The job title/position (will be displayed in uppercase) |
-| format    | string | No       | Image format: 'jpeg' (default) or 'png'          |
+| Parameter | Type   | Required | Description                                              |
+|-----------|--------|----------|----------------------------------------------------------|
+| nama      | string | Yes      | The name to be displayed in the signature.               |
+| jabatan   | string | No       | The job title/position (will be displayed in uppercase). |
+| pangkat   | string | No       | The rank/grade to be displayed below the name.           |
+| format    | string | No       | Image format: 'jpeg' (default) or 'png'.                 |
 
 **Response:**
-- Content-Type: `image/jpeg` or `image/png` depending on the format parameter
-- Image dimensions: 1489x485 pixels
+- Content-Type: `image/jpeg` or `image/png` depending on the format parameter.
+- Image dimensions: 1489x485 pixels.
 
 **Example Request:**
 ```
-GET /generate?nama=John%20Doe&jabatan=Software%20Engineer&format=jpeg
+GET /generate?nama=John%20Doe&jabatan=Software%20Engineer&pangkat=Penyedia&format=jpeg
 ```
 
 **Error Responses:**
