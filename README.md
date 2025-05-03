@@ -7,7 +7,7 @@ A simple HTTP service that generates electronic signature label images on demand
 - Dynamically generates signature images with professional appearance
 - Customizable name and job title parameters
 - Rounded border design with consistent formatting
-- Returns JPEG images ready for embedding in documents
+- Returns JPEG or PNG images ready for embedding in documents
 - Detailed logging for all requests
 
 ## Requirements
@@ -28,3 +28,52 @@ A simple HTTP service that generates electronic signature label images on demand
    go build -o esign-generator
    ./esign-generator
    ```
+
+## API Documentation
+
+### Generate Signature Image
+
+Generates a signature image with the specified parameters.
+
+**Endpoint:** `GET /generate`
+
+**Parameters:**
+
+| Parameter | Type   | Required | Description                                      |
+|-----------|--------|----------|--------------------------------------------------|
+| nama      | string | Yes      | The name to be displayed in the signature        |
+| jabatan   | string | No       | The job title/position (will be displayed in uppercase) |
+| format    | string | No       | Image format: 'jpeg' (default) or 'png'          |
+
+**Response:**
+- Content-Type: `image/jpeg` or `image/png` depending on the format parameter
+- Image dimensions: 1489x485 pixels
+
+**Example Request:**
+```
+GET /generate?nama=John%20Doe&jabatan=Software%20Engineer&format=jpeg
+```
+
+**Error Responses:**
+
+- 400 Bad Request
+   - Returned when required parameters are missing
+   - Response format:
+     ```json
+     {
+       "error": "Missing required parameters",
+       "missing": ["nama"]
+     }
+     ```
+
+- 500 Internal Server Error
+   - Returned when image encoding fails
+
+## Image Specifications
+
+- Width: 1489 pixels
+- Height: 485 pixels
+- Background: White
+- Border: Black rounded border (4px width, 70px radius)
+- Font: Arial
+- Format: JPEG (default, 100% quality) or PNG
