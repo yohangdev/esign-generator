@@ -170,8 +170,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	jabatan := query.Get("jabatan")
 	nama := query.Get("nama")
+	pangkat := query.Get("pangkat")
 	jabatan, _ = url.QueryUnescape(jabatan)
 	nama, _ = url.QueryUnescape(nama)
+	pangkat, _ = url.QueryUnescape(pangkat)
 
 	// Get the format from query parameter, default to jpeg
 	format := r.URL.Query().Get("format")
@@ -231,6 +233,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		"url":        r.RequestURI,
 		"jabatan":    jabatan,
 		"nama":       nama,
+		"pangkat":    pangkat,
 		"remoteIP":   r.RemoteAddr,
 		"statusCode": statusCode,
 	}
@@ -253,7 +256,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	// Draw the text
 	const maxWidth = 980
 	const topMargin = 65
-	const bottomMargin = 440
+	const bottomMargin = 450
 
 	// Draw from top
 	y := topMargin
@@ -266,7 +269,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Draw footer text from bottom
-	drawText(rgba, 400, bottomMargin, "Penyedia")
+	if pangkat != "" {
+		drawText(rgba, 400, bottomMargin, pangkat)
+	}
 
 	// Draw nama with wrapping from bottom
 	// Calculate position above footer text
