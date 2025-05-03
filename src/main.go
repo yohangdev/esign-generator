@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"image/draw"
 	"image/jpeg"
+	"image/png"
 	"log"
 	"math"
 	"net/http"
@@ -172,6 +173,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	jabatan, _ = url.QueryUnescape(jabatan)
 	nama, _ = url.QueryUnescape(nama)
 
+	// Get the format from query parameter, default to jpeg
+	format := r.URL.Query().Get("format")
+	if format == "" {
+		format = "jpeg"
+	}
+
 	// Check for empty parameters
 	missingParams := make([]string, 0)
 
@@ -266,8 +273,21 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	namaBottomY := bottomMargin - 55 // Leave some space above "Penyedia"
 	drawWrappedTextFromBottom(rgba, 400, namaBottomY, maxWidth, nama)
 
-	w.Header().Set("Content-Type", "image/jpeg")
-	jpeg.Encode(w, rgba, &jpeg.Options{Quality: 100})
+	// Set content type and encode image based on format
+	var err error
+	switch format {
+	case "png":
+		w.Header().Set("Content-Type", "image/png")
+		err = png.Encode(w, rgba)
+	default:
+		w.Header().Set("Content-Type", "image/jpeg")
+		err = jpeg.Encode(w, rgba, &jpeg.Options{Quality: 100})
+	}
+
+	if err != nil {
+		http.Error(w, "Failed to encode image", http.StatusInternalServerError)
+		return
+	}
 }
 
 func main() {
