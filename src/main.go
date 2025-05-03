@@ -166,6 +166,39 @@ func drawRoundedBorder(img *image.RGBA, width, height, borderWidth, radius int, 
 	drawCornerArc(img, width-1-radius, height-1-radius, radius, 0, 0.5*math.Pi, borderWidth, col) // bottom-right
 }
 
+// generateSafeFilename creates a safe filename from given strings by:
+// - Converting to lowercase
+// - Replacing spaces and special characters with dashes
+// - Removing consecutive dashes
+func generateSafeFilename(parts ...string) string {
+	// Join all parts with dash
+	combined := strings.Join(parts, "-")
+
+	// Convert to lowercase
+	combined = strings.ToLower(combined)
+
+	// Replace unsafe characters with dash
+	safeFilename := strings.Map(func(r rune) rune {
+		switch {
+		case r >= 'a' && r <= 'z',
+			r >= '0' && r <= '9':
+			return r
+		case r == ' ', r == '_':
+			return '-'
+		default:
+			return '-'
+		}
+	}, combined)
+
+	// Remove multiple consecutive dashes
+	safeFilename = strings.Join(strings.FieldsFunc(safeFilename, func(r rune) bool {
+		return r == '-'
+	}), "-")
+
+	// Trim dashes from start and end
+	return strings.Trim(safeFilename, "-")
+}
+
 func handler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	jabatan := query.Get("jabatan")
@@ -278,14 +311,19 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	namaBottomY := bottomMargin - 55 // Leave some space above "Penyedia"
 	drawWrappedTextFromBottom(rgba, 400, namaBottomY, maxWidth, nama)
 
+	// Generate safe filename using the new function
+	safeFilename := generateSafeFilename(nama, jabatan)
+
 	// Set content type and encode image based on format
 	var err error
 	switch format {
 	case "png":
 		w.Header().Set("Content-Type", "image/png")
+		w.Header().Set("Content-Disposition", fmt.Sprintf(`inline; filename="%s.png"`, safeFilename))
 		err = png.Encode(w, rgba)
 	default:
 		w.Header().Set("Content-Type", "image/jpeg")
+		w.Header().Set("Content-Disposition", fmt.Sprintf(`inline; filename="%s.jpg"`, safeFilename))
 		err = jpeg.Encode(w, rgba, &jpeg.Options{Quality: 100})
 	}
 
