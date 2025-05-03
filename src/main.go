@@ -57,6 +57,84 @@ func drawText(img *image.RGBA, x, y int, label string) {
 	d.DrawString(label)
 }
 
+func drawWrappedText(img *image.RGBA, x, y, maxWidth int, text string) int {
+	words := strings.Split(text, " ")
+	var line []string
+	lineHeight := int(float64(arialFace.Metrics().Height.Ceil()) * 1) // Add some spacing between lines
+	startY := y
+
+	// Measure text width
+	measureString := func(s string) int {
+		return font.MeasureString(arialFace, s).Ceil()
+	}
+
+	for _, word := range words {
+		newLine := strings.Join(append(line, word), " ")
+		if measureString(newLine) > maxWidth {
+			if len(line) > 0 {
+				// Draw current line
+				drawText(img, x, y, strings.Join(line, " "))
+				y += lineHeight
+				line = []string{word}
+			} else {
+				// Word is too long for the line, draw it anyway
+				drawText(img, x, y, word)
+				y += lineHeight
+			}
+		} else {
+			line = append(line, word)
+		}
+	}
+
+	// Draw the last line
+	if len(line) > 0 {
+		drawText(img, x, y, strings.Join(line, " "))
+		y += lineHeight
+	}
+
+	return y - startY // Return total height used
+}
+
+func drawWrappedTextFromBottom(img *image.RGBA, x, bottomY, maxWidth int, text string) int {
+	words := strings.Split(text, " ")
+	var lines []string
+	var currentLine []string
+	lineHeight := int(float64(arialFace.Metrics().Height.Ceil() * 1)) // Add some spacing between lines
+
+	// Measure text width
+	measureString := func(s string) int {
+		return font.MeasureString(arialFace, s).Ceil()
+	}
+
+	// First, calculate all lines
+	for _, word := range words {
+		newLine := strings.Join(append(currentLine, word), " ")
+		if measureString(newLine) > maxWidth {
+			if len(currentLine) > 0 {
+				lines = append(lines, strings.Join(currentLine, " "))
+				currentLine = []string{word}
+			} else {
+				lines = append(lines, word)
+			}
+		} else {
+			currentLine = append(currentLine, word)
+		}
+	}
+	if len(currentLine) > 0 {
+		lines = append(lines, strings.Join(currentLine, " "))
+	}
+
+	// Calculate starting Y position
+	startY := bottomY - (lineHeight * (len(lines) - 1))
+
+	// Draw lines from top to bottom
+	for i, line := range lines {
+		drawText(img, x, startY+(i*lineHeight), line)
+	}
+
+	return startY // Return the top Y position where drawing started
+}
+
 func drawCornerArc(img *image.RGBA, cx, cy, r int, startAngle, endAngle float64, borderWidth int, col color.Color) {
 	for a := startAngle; a <= endAngle; a += 0.01 {
 		for b := 0; b < borderWidth; b++ {
@@ -167,10 +245,25 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	drawRoundedBorder(rgba, width, height, 4, 70, color.Black)
 
 	// Draw the text
-	drawText(rgba, 400, 65, "Ditandatangani secara elektronik oleh:")
-	drawText(rgba, 400, 125, jabatan+", ")
-	drawText(rgba, 400, 385, nama)
-	drawText(rgba, 400, 440, "Penyedia")
+	const maxWidth = 980
+	const topMargin = 65
+	const bottomMargin = 440
+
+	// Draw from top
+	y := topMargin
+	drawText(rgba, 400, y, "Ditandatangani secara elektronik oleh:")
+
+	// Draw jabatan with wrapping from top
+	y = 125
+	y += drawWrappedText(rgba, 400, y, maxWidth, jabatan+",")
+
+	// Draw footer text from bottom
+	drawText(rgba, 400, bottomMargin, "Penyedia")
+
+	// Draw nama with wrapping from bottom
+	// Calculate position above footer text
+	namaBottomY := bottomMargin - 55 // Leave some space above "Penyedia"
+	drawWrappedTextFromBottom(rgba, 400, namaBottomY, maxWidth, nama)
 
 	w.Header().Set("Content-Type", "image/jpeg")
 	jpeg.Encode(w, rgba, nil)
